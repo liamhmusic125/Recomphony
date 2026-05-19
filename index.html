@@ -17,4 +17,20 @@
             <button>Upload</button>
         </form>
     </body>
+    <script src="SheetProcessor.js"></script>
+    <script>
+        const fileInput = document.getElementById("file");
+        fileInput.addEventListener("change", function(event){
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e){
+                const fileString = e.target.result;
+                let edited = removeMeasures(fileString,5,5,5);
+                let parser = new DOMParser();
+                edited = parser.parseFromString(edited,"text/xml");
+                console.log(edited);
+            }
+            reader.readAsText(file);
+        })
+    </script>
 </html>
