@@ -7,6 +7,14 @@
         <h1>
             Recomphony
         </h1>
-        <p>Welcome to Recomphony! This is a website for aspiring composers to learn from their favorite composers by hiding a random section of a piece for you to recompose and compare to the original work.</p>
+        <p>Hello and welcome to Recomphony! This is a website for aspiring composers to learn from their favorite composers by hiding a random section of a piece for them to recompose and compare to the original work.</p>
+        <form method="post" enctype="multipart/form-data">
+            <label for="file">Choose a MusicXML File</label>
+            <br>
+            <!-- Change accept if the display software only accepts a certain type of music xml files-->
+            <input id="file" name="file" type="file" accept=".xml,.mxl,.musicxml"/>
+            <br>
+            <button>Upload</button>
+        </form>
     </body>
 </html>
