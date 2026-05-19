@@ -3,35 +3,84 @@
     <head>
         <title>Recomphony</title>
         <script src="https://unpkg.com/opensheetmusicdisplay@1.9.9/build/opensheetmusicdisplay.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     </head>
     <body>
         <h1>
             Recomphony
         </h1>
-        <p>Hello and welcome to Recomphony! Upload any MusicXML file to begin. A random section of the piece will be hidden to be filled in as you wish to practice composition.</p>
+        <p>Hello and welcome to Recomphony! Upload any MusicXML file to begin. A random section of the piece will be hidden to be filled in as you wish to practice composition. Many compatible scores can be found at <a href="https://github.com/musetrainer/library/tree/master/scores">this github page.</a></p>
         <label for="file">Choose a MusicXML File</label>
         <br>
         <!-- Change accept if the display software only accepts a certain type of music xml files-->
         <input id="file" name="file" type="file" accept=".xml,.mxl,.musicxml"/>
+        <br>
+        <input type="range" id="measuresBeforeSlider" min="1" max="10">
+        <label id = "measuresBeforeOutput">5</label>
+        <label for="measuresBeforeSlider"># of background measures</label>
+        <br>
+        <input type="range" id="measuresHiddenSlider" min="1" max="10">
+        <label id = "measuresHiddenOutput">5</label>
+        <label for="measuresHiddenSlider"># of measures hidden</label>
+        <br>
+        <input type="range" id="measuresAfterSlider" min="1" max="10">
+        <label id = "measuresAfterOutput">5</label>
+        <label for="measuresAfterSlider"># of measures after</label>
+        <br>
         <div id="sheetLocation"></div>
     </body>
     <script src="SheetProcessor.js"></script>
-    <script src="https://unpkg.com"></script>
     <script src="DisplaySheet.js"></script>
     <script>
+        // Script for handling the sliders
+        let bSlider = document.getElementById("measuresBeforeSlider");
+        let bOutput = document.getElementById("measuresBeforeOutput");
+        bSlider.oninput = function(){
+            bOutput.innerHTML = this.value;
+        }
+        let hSlider = document.getElementById("measuresHiddenSlider");
+        let hOutput = document.getElementById("measuresHiddenOutput");
+        hSlider.oninput = function(){
+            hOutput.innerHTML = this.value;
+        }
+        let aSlider = document.getElementById("measuresAfterSlider");
+        let aOutput = document.getElementById("measuresAfterOutput");
+        aSlider.oninput = function(){
+            aOutput.innerHTML = this.value;
+        }
+        // Script for handing the sheet music and uploads
         const fileInput = document.getElementById("file");
-        fileInput.addEventListener("change", function(event){
+        fileInput.addEventListener("change",async function(event){
             const file = event.target.files[0];
-            const reader = new FileReader();
-            reader.onload = function(e){
-                const fileString = e.target.result;
-                let edited = removeMeasures(fileString,5,5,5);
-                let parser = new DOMParser();
-                displayMXL("sheetLocation",edited);
-                edited = parser.parseFromString(edited,"text/xml");
-                console.log(edited);
+            let fileString = "";
+            if (file.name.endsWith(".mxl")){
+                const reader = new FileReader();
+                reader.onload = async function(e){
+                    const arrayBuffer = e.target.result;
+                    const zip = await JSZip.loadAsync(arrayBuffer);
+                    const containerText = await zip.file("META-INF/container.xml").async("string");
+                    const parser = new DOMParser();
+                    const containerDoc = parser.parseFromString(containerText,"text/xml")
+                    const rootFile = containerDoc.querySelector("rootfile");
+                    const fullPath = rootFile.getAttribute("full-path");
+                    const fileString = await zip.file(fullPath).async("string");
+                    let edited = removeMeasures(fileString,parseInt(bSlider.value),parseInt(hSlider.value),parseInt(aSlider.value));
+                    displayMXL("sheetLocation",edited);
+                };
+                reader.readAsArrayBuffer(file);
             }
-            reader.readAsText(file);
+            else {
+                const reader = new FileReader();
+                reader.onload = function(e){
+                    fileString = e.target.result;
+                    let edited = removeMeasures(fileString,parseInt(bSlider.value),parseInt(hSlider.value),parseInt(aSlider.value));
+                    let parser = new DOMParser();
+                    displayMXL("sheetLocation",edited);
+                    edited = parser.parseFromString(edited,"text/xml");
+                    console.log(edited);
+                };
+                reader.readAsText(file);
+            }
         })
     </script>
 </html>
