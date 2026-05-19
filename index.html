@@ -2,22 +2,22 @@
 <html>
     <head>
         <title>Recomphony</title>
+        <script src="https://unpkg.com/opensheetmusicdisplay@1.9.9/build/opensheetmusicdisplay.min.js"></script>
     </head>
     <body>
         <h1>
             Recomphony
         </h1>
-        <p>Hello and welcome to Recomphony! This is a website for aspiring composers to learn from their favorite composers by hiding a random section of a piece for them to recompose and compare to the original work.</p>
-        <form method="post" enctype="multipart/form-data">
-            <label for="file">Choose a MusicXML File</label>
-            <br>
-            <!-- Change accept if the display software only accepts a certain type of music xml files-->
-            <input id="file" name="file" type="file" accept=".xml,.mxl,.musicxml"/>
-            <br>
-            <button>Upload</button>
-        </form>
+        <p>Hello and welcome to Recomphony! Upload any MusicXML file to begin. A random section of the piece will be hidden to be filled in as you wish to practice composition.</p>
+        <label for="file">Choose a MusicXML File</label>
+        <br>
+        <!-- Change accept if the display software only accepts a certain type of music xml files-->
+        <input id="file" name="file" type="file" accept=".xml,.mxl,.musicxml"/>
+        <div id="sheetLocation"></div>
     </body>
     <script src="SheetProcessor.js"></script>
+    <script src="https://unpkg.com"></script>
+    <script src="DisplaySheet.js"></script>
     <script>
         const fileInput = document.getElementById("file");
         fileInput.addEventListener("change", function(event){
@@ -27,6 +27,7 @@
                 const fileString = e.target.result;
                 let edited = removeMeasures(fileString,5,5,5);
                 let parser = new DOMParser();
+                displayMXL("sheetLocation",edited);
                 edited = parser.parseFromString(edited,"text/xml");
                 console.log(edited);
             }
